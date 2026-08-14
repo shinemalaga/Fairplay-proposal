@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fairplay App · Auditoría UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12181a;
+    --ink-soft:#2c3532;
+    --paper:#f1f4ee;
+    --paper-2:#e6eae0;
+    --card:#ffffff;
+    --pitch:#1e6f49;
+    --pitch-light:#2f8d5f;
+    --pitch-pale:#e3efe6;
+    --red:#e0463a;
+    --red-pale:#fbe7e3;
+    --yellow:#e8a23d;
+    --yellow-pale:#fbeed9;
+    --muted:#5b6560;
+    --line:#d7ddd0;
+    --white:#ffffff;
+    --radius:18px;
+    --radius-sm:10px;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk',sans-serif;
+    margin:0;
+    letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  p{margin:0;}
+  a{color:inherit;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--pitch);
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 32px;}
+  section{padding:118px 0;}
+  @media (max-width:780px){ section{padding:76px 0;} .wrap{padding:0 20px;} }
+
+  /* reveal */
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ===== NAV ===== */
+  .nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(10px);
+    background:rgba(241,244,238,.86);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 32px;
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+  }
+  .brand{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:2px;background:var(--red); transform:rotate(8deg); display:inline-block;}
+  .navlinks{display:flex; gap:26px; list-style:none; margin:0; padding:0;}
+  .navlinks a{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--muted); text-decoration:none; padding-bottom:4px; border-bottom:2px solid transparent;
+    transition:color .2s, border-color .2s;
+  }
+  .navlinks a:hover, .navlinks a.active{color:var(--ink); border-color:var(--red);}
+  @media (max-width:900px){ .navlinks{display:none;} }
+
+  /* ===== HERO ===== */
+  .hero{padding:96px 0 90px;}
+  .hero-top{max-width:760px;}
+  .hero h1{
+    font-size:clamp(34px,4.6vw,58px);
+    line-height:1.05;
+    margin:18px 0 22px;
+    font-weight:700;
+  }
+  .hero .sub{font-size:18px; color:var(--ink-soft); max-width:600px; margin-bottom:10px;}
+  .scoreboard{
+    margin-top:56px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border:1px solid var(--ink);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--ink);
+  }
+  .score-cell{
+    background:var(--paper);
+    padding:28px 26px;
+    border-right:1px solid var(--line);
+    position:relative;
+  }
+  .score-cell:last-child{border-right:none;}
+  .score-cell .val{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(26px,3vw,36px);
+    line-height:1;
+    margin-bottom:10px;
+    display:inline-block;
+  }
+  .score-cell .lab{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .chip{display:inline-block; width:10px; height:14px; border-radius:2px; margin-right:8px; vertical-align:middle; transform:translateY(-2px) rotate(-6deg);}
+  .chip.red{background:var(--red);} .chip.yellow{background:var(--yellow);} .chip.green{background:var(--pitch);}
+
+  @media (max-width:700px){ .scoreboard{grid-template-columns:1fr;} .score-cell{border-right:none; border-bottom:1px solid var(--line);} }
+
+  /* ===== SECTION HEAD ===== */
+  .shead{max-width:680px; margin-bottom:52px;}
+  .shead h2{font-size:clamp(26px,3.4vw,38px); margin-top:14px; font-weight:600;}
+  .shead .desc{color:var(--muted); font-size:16.5px; margin-top:14px;}
+
+  /* ===== SPLIT: QUE ES FAIRPLAY ===== */
+  .split{display:grid; grid-template-columns:1fr auto 1fr; gap:0; align-items:stretch;}
+  @media (max-width:860px){ .split{grid-template-columns:1fr;} }
+  .side{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:34px 30px; display:flex; flex-direction:column; gap:22px;
+  }
+  .side-head{display:flex; align-items:center; gap:12px;}
+  .side-icon{
+    width:42px;height:42px;border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:var(--paper-2); flex:none;
+  }
+  .side h3{font-size:20px; font-weight:600;}
+  .steps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0;}
+  .steps li{
+    font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:var(--ink-soft);
+    padding:11px 0; border-bottom:1px dashed var(--line); display:flex; align-items:center; gap:10px;
+  }
+  .steps li:last-child{border-bottom:none;}
+  .steps li .n{color:var(--muted); font-weight:600;}
+  .side-cta{
+    margin-top:auto; align-self:flex-start;
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em;
+    padding:10px 16px; border-radius:999px; border:1px solid var(--ink); background:var(--ink); color:var(--white);
+  }
+  .side.right .side-cta{background:var(--pitch); border-color:var(--pitch);}
+  .vs{
+    display:flex; align-items:center; justify-content:center; padding:0 22px;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--muted); font-size:14px;
+  }
+  @media (max-width:860px){ .vs{padding:14px 0;} }
+  .insight-bar{
+    margin-top:26px; padding:18px 22px; border-radius:var(--radius-sm);
+    background:var(--pitch-pale); border:1px solid var(--pitch-light); color:var(--ink-soft); font-size:15px;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .insight-bar b{color:var(--pitch);}
+
+  /* ===== FLOW DIAGRAM ===== */
+  .flow{display:flex; flex-direction:column; align-items:center; gap:0;}
+  .flow-root{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px;
+    background:var(--ink); color:var(--white); padding:14px 30px; border-radius:999px;
+  }
+  .flow-line{width:1px; height:36px; background:var(--line);}
+  .flow-branches{
+    display:grid; grid-template-columns:1fr 1fr; gap:26px; width:100%; max-width:920px;
+  }
+  @media (max-width:760px){ .flow-branches{grid-template-columns:1fr;} }
+  .branch{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--card); padding:24px;
+  }
+  .branch-title{font-weight:600; font-size:16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;}
+  .branch-title .chip{transform:none;}
+  .journey-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .journey-pill{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--paper-2); padding:7px 12px; border-radius:999px;
+  }
+  .journey-row .arrow{color:var(--muted); align-self:center; font-size:12px;}
+
+  /* ===== FINDINGS CARDS (referee cards) ===== */
+  .findings{display:flex; flex-direction:column; gap:22px;}
+  .finding{
+    display:grid; grid-template-columns:120px 1fr; gap:0;
+    border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); background:var(--card);
+  }
+  @media (max-width:700px){ .finding{grid-template-columns:1fr;} }
+  .finding-tag{
+    background:var(--red); color:var(--white); padding:26px 20px;
+    display:flex; flex-direction:column; justify-content:space-between; gap:14px; position:relative;
+  }
+  .finding-tag .num{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:30px;}
+  .finding-tag .prio{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; opacity:.9;}
+  .finding-body{padding:26px 28px; display:grid; grid-template-columns:1fr; gap:14px;}
+  .finding-body h3{font-size:19px; font-weight:600;}
+  .frow{display:grid; grid-template-columns:110px 1fr; gap:14px; font-size:14.5px;}
+  @media (max-width:600px){ .frow{grid-template-columns:1fr; gap:4px;} }
+  .flabel{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding-top:2px;}
+  .fval{color:var(--ink-soft);}
+  .frow.reco .fval{color:var(--pitch); font-weight:500;}
+
+  /* ===== CONVERSION GRID ===== */
+  .grid2x3{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  @media (max-width:760px){ .grid2x3{grid-template-columns:1fr;} }
+  .conv-card{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--card); padding:26px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .conv-card h4{font-size:16.5px; font-weight:600;}
+  .ba{display:flex; flex-direction:column; gap:10px;}
+  .ba-row{display:flex; gap:10px; font-size:14px; align-items:flex-start;}
+  .ba-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 8px; border-radius:5px; flex:none; margin-top:1px;
+  }
+  .ba-tag.now{background:var(--red-pale); color:var(--red);}
+  .ba-tag.next{background:var(--pitch-pale); color:var(--pitch);}
+  .ba-text{color:var(--ink-soft);}
+  .example{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted);
+    border-top:1px dashed var(--line); padding-top:10px; margin-top:4px;
+  }
+
+  /* ===== JOURNEY HORIZONTAL ===== */
+  .journey6{display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding-bottom:8px;}
+  .j-step{flex:1; min-width:130px; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 8px;}
+  .j-circle{
+    width:44px;height:44px;border-radius:50%; background:var(--ink); color:var(--white);
+    display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700;
+    margin-bottom:12px; flex:none;
+  }
+  .j-title{font-weight:600; font-size:14.5px; margin-bottom:4px;}
+  .j-support{font-size:12.5px; color:var(--muted);}
+  .j-connector{flex:0 0 26px; height:44px; display:flex; align-items:center; margin-top:0;}
+  .j-connector .ln{width:100%; height:1px; background:var(--line); position:relative; top:22px;}
+  @media (max-width:760px){ .journey6{flex-direction:column; align-items:stretch;} .j-step{flex-direction:row; text-align:left; min-width:0; padding:14px 0;} .j-circle{margin-bottom:0; margin-right:14px;} .j-connector{display:none;} }
+
+  /* ===== ECOSYSTEM ===== */
+  .ecosystem{
+    display:flex; flex-direction:column; align-items:center; gap:34px;
+  }
+  .eco-center{
+    background:var(--ink); color:var(--white); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px;
+    padding:20px 40px; border-radius:999px;
+  }
+  .eco-modules{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:820px; width:100%;
+  }
+  @media (max-width:700px){ .eco-modules{grid-template-columns:repeat(2,1fr);} }
+  .eco-chip{
+    border:1px solid var(--line); background:var(--card); border-radius:var(--radius-sm);
+    padding:16px; text-align:center; font-size:13.5px; font-weight:500; color:var(--ink-soft);
+  }
+
+  /* ===== TRUST / QUESTIONS ===== */
+  .trust-list{display:flex; flex-direction:column; gap:0;}
+  .trust-item{
+    display:grid; grid-template-columns:180px 1fr; gap:20px; padding:22px 0; border-bottom:1px solid var(--line);
+  }
+  @media (max-width:600px){ .trust-item{grid-template-columns:1fr; gap:6px;} }
+  .trust-item h4{font-size:15.5px; font-weight:600;}
+  .trust-item .q{color:var(--ink-soft); font-size:15px;}
+  .footnote{margin-top:26px; font-size:13.5px; color:var(--muted); font-style:italic;}
+
+  /* ===== UX WRITING BEFORE/AFTER ===== */
+  .writing-grid{display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  @media (max-width:700px){ .writing-grid{grid-template-columns:1fr;} }
+  .wcol{padding:26px 28px;}
+  .wcol.before{background:var(--red-pale);}
+  .wcol.after{background:var(--pitch-pale);}
+  .wcol .wlabel{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:16px; display:block;}
+  .wcol.before .wlabel{color:var(--red);} .wcol.after .wlabel{color:var(--pitch);}
+  .wlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px;}
+  .wlist li{font-size:14.5px; color:var(--ink-soft); padding-bottom:12px; border-bottom:1px dashed rgba(0,0,0,.08);}
+  .wlist li:last-child{border:none; padding-bottom:0;}
+
+  /* ===== QUICK WINS ===== */
+  .checklist{display:grid; grid-template-columns:1fr 1fr; gap:14px 28px;}
+  @media (max-width:700px){ .checklist{grid-template-columns:1fr;} }
+  .check-item{
+    display:flex; gap:14px; align-items:flex-start; padding:16px 18px; background:var(--card);
+    border:1px solid var(--line); border-radius:var(--radius-sm); font-size:14.5px; color:var(--ink-soft);
+  }
+  .check-box{
+    width:20px;height:20px;border-radius:5px; border:2px solid var(--pitch); flex:none; margin-top:1px;
+    position:relative;
+  }
+  .check-box::after{
+    content:""; position:absolute; left:4px; top:0px; width:6px; height:11px;
+    border:solid var(--pitch); border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+
+  /* ===== IMPACT/EFFORT MATRIX ===== */
+  .matrix-wrap{display:grid; grid-template-columns:36px 1fr; gap:14px;}
+  .matrix-ylabel{writing-mode:vertical-rl; transform:rotate(180deg); text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .matrix{display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:14px; min-height:420px;}
+  @media (max-width:700px){ .matrix{grid-template-columns:1fr; min-height:auto;} .matrix-wrap{grid-template-columns:1fr;} .matrix-ylabel{display:none;} }
+  .mx-quad{
+    border-radius:var(--radius); padding:20px; display:flex; flex-direction:column; gap:12px; border:1px solid var(--line);
+  }
+  .mx-quad .mx-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  .mx-quad ul{margin:0; padding-left:18px; font-size:13.5px; color:var(--ink-soft); display:flex; flex-direction:column; gap:6px;}
+  .mx-quad.hi-lo{background:var(--pitch-pale); border-color:var(--pitch-light);}
+  .mx-quad.hi-hi{background:var(--card);}
+  .mx-quad.lo-lo{background:var(--paper-2);}
+  .mx-quad.lo-hi{background:var(--red-pale);}
+  .matrix-xlabels{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-top:10px; padding:0 4px;}
+
+  /* ===== ROADMAP ===== */
+  .roadmap{display:grid; grid-template-columns:repeat(5,1fr); gap:16px;}
+  @media (max-width:900px){ .roadmap{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:500px){ .roadmap{grid-template-columns:1fr;} }
+  .phase{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--card); padding:22px 18px;
+    position:relative;
+  }
+  .phase .ph-num{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--pitch); margin-bottom:10px; display:block;}
+  .phase h4{font-size:16px; font-weight:600; margin-bottom:12px;}
+  .phase ul{margin:0; padding-left:16px; font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:5px;}
+
+  /* ===== FINAL ===== */
+  .final{
+    background:var(--ink); color:var(--paper); border-radius:28px; margin:0 32px; padding:90px 60px;
+    text-align:center;
+  }
+  @media (max-width:700px){ .final{padding:60px 26px; margin:0 16px;} }
+  .final .eyebrow{color:var(--pitch-light);}
+  .final h2{font-size:clamp(24px,3vw,32px); color:var(--white); margin:16px 0; font-weight:600; max-width:640px; margin-left:auto; margin-right:auto;}
+  .final .headline{font-family:'Space Grotesk',sans-serif; font-size:clamp(28px,4vw,44px); font-weight:700; color:var(--white); max-width:760px; margin:14px auto 22px; line-height:1.15;}
+  .final p.desc{color:#a9b3ac; max-width:520px; margin:0 auto 34px; font-size:15.5px;}
+  .final .cta{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:13px; text-transform:uppercase; letter-spacing:.06em;
+    background:var(--red); color:var(--white); padding:16px 30px; border-radius:999px;
+  }
+  footer{text-align:center; padding:40px 0 60px; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span>Fairplay — UX Audit</div>
+    <ul class="navlinks">
+      <li><a href="#resumen">Resumen</a></li>
+      <li><a href="#problemas">Problemas</a></li>
+      <li><a href="#oportunidades">Oportunidades</a></li>
+      <li><a href="#journeys">Journeys</a></li>
+      <li><a href="#quickwins">Quick Wins</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="resumen">
+  <div class="wrap">
+    <div class="hero-top">
+      <span class="eyebrow">UX Audit · Fairplay App</span>
+      <h1>Una plataforma. Dos usuarios. Una experiencia que todavía necesita ordenarse.</h1>
+      <p class="sub">Fairplay conecta jugadores que buscan dónde jugar con propietarios que necesitan administrar sus centros deportivos. La oportunidad está en hacer que ambas experiencias sean claras desde el primer segundo.</p>
+    </div>
+    <div class="scoreboard reveal">
+      <div class="score-cell">
+        <span class="val"><span class="chip red"></span>5</span>
+        <div class="lab">Problemas críticos</div>
+      </div>
+      <div class="score-cell">
+        <span class="val"><span class="chip yellow"></span>8+</span>
+        <div class="lab">Oportunidades medias</div>
+      </div>
+      <div class="score-cell">
+        <span class="val"><span class="chip green"></span>B2C+B2B</span>
+        <div class="lab">Gran oportunidad · arquitectura</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUE ES FAIRPLAY -->
+<section id="que-es">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">El problema principal</span>
+      <h2>¿Qué es Fairplay?</h2>
+      <p class="desc">Actualmente la plataforma comunica dos propuestas distintas que no están suficientemente conectadas.</p>
+    </div>
+
+    <div class="split reveal">
+      <div class="side">
+        <div class="side-head">
+          <div class="side-icon">⚽</div>
+          <h3>Para jugadores</h3>
+        </div>
+        <ul class="steps">
+          <li><span class="n">1</span> Buscar cancha</li>
+          <li><span class="n">2</span> Ver disponibilidad</li>
+          <li><span class="n">3</span> Reservar</li>
+          <li><span class="n">4</span> Pagar</li>
+          <li><span class="n">5</span> Jugar</li>
+        </ul>
+        <span class="side-cta">Quiero jugar</span>
+      </div>
+      <div class="vs">VS</div>
+      <div class="side right">
+        <div class="side-head">
+          <div class="side-icon">📊</div>
+          <h3>Para dueños</h3>
+        </div>
+        <ul class="steps">
+          <li><span class="n">1</span> Gestionar reservas</li>
+          <li><span class="n">2</span> Controlar caja</li>
+          <li><span class="n">3</span> Gestionar kiosko</li>
+          <li><span class="n">4</span> Gestionar trabajadores</li>
+          <li><span class="n">5</span> Facturar y analizar</li>
+        </ul>
+        <span class="side-cta">Gestionar mi centro deportivo</span>
+      </div>
+    </div>
+
+    <div class="insight-bar reveal">
+      <span>🟢</span>
+      <span><b>Insight —</b> Fairplay puede atender ambos mercados, pero necesita separar claramente ambos journeys desde el inicio.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ARQUITECTURA -->
+<section id="arquitectura">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Arquitectura propuesta</span>
+      <h2>Dos caminos claros desde el primer clic</h2>
+      <p class="desc">En lugar de mezclar ambas propuestas, la experiencia debe ayudar inmediatamente al usuario a identificarse.</p>
+    </div>
+    <div class="flow reveal">
+      <div class="flow-root">Fairplay</div>
+      <div class="flow-line"></div>
+      <div class="flow-branches">
+        <div class="branch">
+          <div class="branch-title"><span class="chip green" style="transform:rotate(-8deg)"></span>Quiero jugar</div>
+          <div class="journey-row">
+            <span class="journey-pill">Buscar</span><span class="arrow">→</span>
+            <span class="journey-pill">Comparar</span><span class="arrow">→</span>
+            <span class="journey-pill">Reservar</span><span class="arrow">→</span>
+            <span class="journey-pill">Pagar</span><span class="arrow">→</span>
+            <span class="journey-pill">Jugar</span>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="branch-title"><span class="chip yellow" style="transform:rotate(-8deg)"></span>Tengo un centro deportivo</div>
+          <div class="journey-row">
+            <span class="journey-pill">Digitalizar</span><span class="arrow">→</span>
+            <span class="journey-pill">Administrar</span><span class="arrow">→</span>
+            <span class="journey-pill">Cobrar</span><span class="arrow">→</span>
+            <span class="journey-pill">Controlar</span><span class="arrow">→</span>
+            <span class="journey-pill">Crecer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HALLAZGOS CRITICOS -->
+<section id="problemas">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Hallazgos críticos</span>
+      <h2>Los puntos que deberían resolverse primero</h2>
+      <p class="desc">Cinco tarjetas rojas: los hallazgos de mayor prioridad, en el orden en que recomendamos abordarlos.</p>
+    </div>
+    <div class="findings">
+
+      <div class="finding reveal">
+        <div class="finding-tag"><span class="num">01</span><span class="prio">Prioridad alta</span></div>
+        <div class="finding-body">
+          <h3>Propuesta de valor poco clara</h3>
+          <div class="frow"><span class="flabel">Problema</span><span class="fval">La home habla principalmente al jugador, mientras que gran parte del producto está orientado al propietario.</span></div>
+          <div class="frow"><span class="flabel">Impacto</span><span class="fval">El usuario puede no entender rápidamente qué hace realmente Fairplay.</span></div>
+          <div class="frow reco"><span class="flabel">Recomendación</span><span class="fval">Crear una propuesta paraguas y dos rutas claramente diferenciadas.</span></div>
+        </div>
+      </div>
+
+      <div class="finding reveal">
+        <div class="finding-tag"><span class="num">02</span><span class="prio">Prioridad alta</span></div>
+        <div class="finding-body">
+          <h3>B2C y B2B compiten por atención</h3>
+          <div class="frow"><span class="flabel">Problema</span><span class="fval">Jugadores y dueños tienen objetivos completamente diferentes.</span></div>
+          <div class="frow"><span class="flabel">Impacto</span><span class="fval">Los CTA y mensajes pueden competir entre sí.</span></div>
+          <div class="frow reco"><span class="flabel">Recomendación</span><span class="fval">Separar "Quiero jugar" y "Gestionar mi centro deportivo" desde navegación y hero.</span></div>
+        </div>
+      </div>
+
+      <div class="finding reveal">
+        <div class="finding-tag"><span class="num">03</span><span class="prio">Prioridad alta</span></div>
+        <div class="finding-body">
+          <h3>Marketplace todavía con poca oferta visible</h3>
+          <div class="frow"><span class="flabel">Problema</span><span class="fval">El buscador público muestra una cantidad limitada de sedes.</span></div>
+          <div class="frow"><span class="flabel">Impacto</span><span class="fval">Una experiencia basada en catálogo puede sentirse vacía mientras crece la red.</span></div>
+          <div class="frow reco"><span class="flabel">Recomendación</span><span class="fval">Diseñar la experiencia considerando una etapa temprana de inventario.</span></div>
+        </div>
+      </div>
+
+      <div class="finding reveal">
+        <div class="finding-tag"><span class="num">04</span><span class="prio">Prioridad alta</span></div>
+        <div class="finding-body">
+          <h3>Prueba social que necesita contexto</h3>
+          <div class="frow"><span class="flabel">Problema</span><span class="fval">Se comunica una cantidad grande de sedes en la propuesta B2B mientras la oferta pública visible es mucho menor.</span></div>
+          <div class="frow"><span class="flabel">Impacto</span><span class="fval">Puede generar dudas sobre qué significa exactamente la cifra.</span></div>
+          <div class="frow reco"><span class="flabel">Recomendación</span><span class="fval">Especificar si son clientes SaaS, centros registrados, activos o en onboarding.</span></div>
+        </div>
+      </div>
+
+      <div class="finding reveal">
+        <div class="finding-tag"><span class="num">05</span><span class="prio">Prioridad alta</span></div>
+        <div class="finding-body">
+          <h3>Estados de disponibilidad confusos</h3>
+          <div class="frow"><span class="flabel">Problema</span><span class="fval">El usuario puede encontrar estados como "Sin cupos" y "Cargando" dentro de la misma experiencia.</span></div>
+          <div class="frow"><span class="flabel">Impacto</span><span class="fval">Reduce confianza justo antes de reservar.</span></div>
+          <div class="frow reco"><span class="flabel">Recomendación</span><span class="fval">Diseñar estados independientes: cargando, disponible, sin disponibilidad y error.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- OPORTUNIDADES DE CONVERSION -->
+<section id="oportunidades">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Oportunidades de conversión</span>
+      <h2>Hacer más fácil tomar una decisión</h2>
+    </div>
+    <div class="grid2x3 reveal">
+
+      <div class="conv-card">
+        <h4>Menos CTA, más claridad</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">Registrar, empezar, hablar, agendar, coordinar, ver cómo funciona...</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">1 CTA principal + 1 CTA secundario.</span></div>
+        </div>
+        <div class="example">Ej: "Agendar una demo"</div>
+      </div>
+
+      <div class="conv-card">
+        <h4>Más confianza antes de reservar</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">La decisión depende principalmente de ubicación, precio y disponibilidad.</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">Agregar información que reduzca incertidumbre.</span></div>
+        </div>
+        <div class="example">Fotos + rating + superficie + servicios + cancelación + mapa</div>
+      </div>
+
+      <div class="conv-card">
+        <h4>Planes más fáciles de comparar</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">Los planes pueden percibirse demasiado similares.</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">Explicar claramente quién debería elegir cada plan.</span></div>
+        </div>
+        <div class="example">Ideal para / Incluye / Diferencia principal</div>
+      </div>
+
+      <div class="conv-card">
+        <h4>Contenido menos repetitivo</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">Reservas, control y digitalización aparecen reiteradamente.</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">Problema → solución → producto → prueba → precio → CTA.</span></div>
+        </div>
+      </div>
+
+      <div class="conv-card">
+        <h4>Prueba social real</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">Avatares o evidencia genérica.</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">Mostrar centros deportivos reales y resultados.</span></div>
+        </div>
+        <div class="example">Nombre + foto + testimonio + resultado</div>
+      </div>
+
+      <div class="conv-card">
+        <h4>Consistencia del producto</h4>
+        <div class="ba">
+          <div class="ba-row"><span class="ba-tag now">Actual</span><span class="ba-text">Precios, estados y nomenclaturas deben mantenerse sincronizados.</span></div>
+          <div class="ba-row"><span class="ba-tag next">Propuesta</span><span class="ba-text">Usar una única fuente de información y componentes consistentes.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCIA DE RESERVA -->
+<section id="journeys">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Experiencia de reserva</span>
+      <h2>La reserva debería sentirse simple y segura</h2>
+    </div>
+    <div class="journey6 reveal">
+      <div class="j-step"><div class="j-circle">1</div><div class="j-title">Buscar</div><div class="j-support">Deporte + zona + fecha</div></div>
+      <div class="j-connector"><div class="ln"></div></div>
+      <div class="j-step"><div class="j-circle">2</div><div class="j-title">Comparar</div><div class="j-support">Precio + distancia + rating</div></div>
+      <div class="j-connector"><div class="ln"></div></div>
+      <div class="j-step"><div class="j-circle">3</div><div class="j-title">Elegir horario</div><div class="j-support">Disponibilidad real</div></div>
+      <div class="j-connector"><div class="ln"></div></div>
+      <div class="j-step"><div class="j-circle">4</div><div class="j-title">Reservar</div><div class="j-support">Información transparente</div></div>
+      <div class="j-connector"><div class="ln"></div></div>
+      <div class="j-step"><div class="j-circle">5</div><div class="j-title">Pagar</div><div class="j-support">Método y confirmación</div></div>
+      <div class="j-connector"><div class="ln"></div></div>
+      <div class="j-step"><div class="j-circle">6</div><div class="j-title">Jugar</div><div class="j-support">QR / confirmación / ubicación</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ECOSISTEMA PROPIETARIOS -->
+<section id="ecosistema">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Experiencia para propietarios</span>
+      <h2>El verdadero poder de Fairplay está detrás de la cancha</h2>
+      <p class="desc">Fairplay no es solamente reservas.</p>
+    </div>
+    <div class="ecosystem reveal">
+      <div class="eco-center">Centro deportivo</div>
+      <div class="eco-modules">
+        <div class="eco-chip">Reservas</div>
+        <div class="eco-chip">Caja</div>
+        <div class="eco-chip">Kiosko</div>
+        <div class="eco-chip">Trabajadores</div>
+        <div class="eco-chip">Clientes</div>
+        <div class="eco-chip">Pagos</div>
+        <div class="eco-chip">Boletas y facturas</div>
+        <div class="eco-chip">Reportes</div>
+      </div>
+    </div>
+    <div class="insight-bar reveal">
+      <span>🟢</span>
+      <span>Esta profundidad de producto debería ser mucho más evidente en la propuesta B2B.</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENIDO Y CONFIANZA -->
+<section id="confianza">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Contenido y confianza</span>
+      <h2>Antes de prometer, demostrar</h2>
+    </div>
+    <div class="trust-list reveal">
+      <div class="trust-item"><h4>Facturación</h4><div class="q">¿Está completamente operativa la integración con SUNAT?</div></div>
+      <div class="trust-item"><h4>Pagos</h4><div class="q">¿Yape y Plin están integrados o requieren validación manual?</div></div>
+      <div class="trust-item"><h4>QR</h4><div class="q">¿Cómo funciona exactamente el ingreso después de reservar?</div></div>
+      <div class="trust-item"><h4>Prueba social</h4><div class="q">¿Qué significa exactamente la cantidad de sedes comunicada?</div></div>
+      <div class="trust-item"><h4>Beneficios</h4><div class="q">¿Qué promociones y alianzas están realmente activas?</div></div>
+    </div>
+    <p class="footnote reveal">Las promesas comerciales deben estar alineadas con funcionalidades actualmente disponibles.</p>
+  </div>
+</section>
+
+<!-- UX WRITING -->
+<section id="ux-writing">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">UX Writing</span>
+      <h2>Hablar el mismo idioma en todo el producto</h2>
+    </div>
+    <div class="writing-grid reveal">
+      <div class="wcol before">
+        <span class="wlabel">Hoy — términos mezclados</span>
+        <ul class="wlist">
+          <li>Campo deportivo</li>
+          <li>Sede</li>
+          <li>Cancha</li>
+          <li>FairPlay</li>
+          <li>Fairplay SaaS</li>
+        </ul>
+      </div>
+      <div class="wcol after">
+        <span class="wlabel">Propuesta — un solo sistema</span>
+        <ul class="wlist">
+          <li>Definir término principal para negocio</li>
+          <li>Definir término para ubicación</li>
+          <li>Definir término para cancha</li>
+          <li>Normalizar nombre de marca</li>
+          <li>Crear sistema de UX Writing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK WINS -->
+<section id="quickwins">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Quick wins</span>
+      <h2>Mejoras que pueden generar impacto rápidamente</h2>
+    </div>
+    <div class="checklist reveal">
+      <div class="check-item"><div class="check-box"></div>Separar claramente Jugadores y Dueños.</div>
+      <div class="check-item"><div class="check-box"></div>Definir un CTA principal por página.</div>
+      <div class="check-item"><div class="check-box"></div>Corregir inconsistencias de precios.</div>
+      <div class="check-item"><div class="check-box"></div>Diseñar correctamente estados de carga y disponibilidad.</div>
+      <div class="check-item"><div class="check-box"></div>Eliminar o desactivar links que todavía no tienen contenido.</div>
+      <div class="check-item"><div class="check-box"></div>Revisar el mensaje "Descarga la App" si la app aún no está disponible.</div>
+      <div class="check-item"><div class="check-box"></div>Simplificar textos repetidos.</div>
+      <div class="check-item"><div class="check-box"></div>Mejorar fichas de canchas con mayor información para decidir.</div>
+      <div class="check-item"><div class="check-box"></div>Agregar testimonios reales.</div>
+      <div class="check-item"><div class="check-box"></div>Normalizar términos y nomenclatura.</div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT EFFORT -->
+<section id="matriz">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Impact vs Effort</span>
+      <h2>¿Por dónde empezamos?</h2>
+    </div>
+    <div class="matrix-wrap reveal">
+      <div class="matrix-ylabel">Impacto</div>
+      <div>
+        <div class="matrix">
+          <div class="mx-quad hi-lo">
+            <span class="mx-title">Alto impacto · bajo esfuerzo</span>
+            <ul>
+              <li>Clarificar propuesta de valor</li>
+              <li>Reducir CTA</li>
+              <li>Normalizar textos</li>
+              <li>Corregir estados</li>
+              <li>Revisar links</li>
+            </ul>
+          </div>
+          <div class="mx-quad hi-hi">
+            <span class="mx-title">Alto impacto · alto esfuerzo</span>
+            <ul>
+              <li>Nueva arquitectura B2C + B2B</li>
+              <li>Optimización completa del journey de reserva</li>
+              <li>Sistema UX para propietarios</li>
+              <li>Preparación de arquitectura para app</li>
+            </ul>
+          </div>
+          <div class="mx-quad lo-lo">
+            <span class="mx-title">Bajo impacto · bajo esfuerzo</span>
+            <ul>
+              <li>Ajustes de jerarquía visual</li>
+              <li>Mejoras menores de copy</li>
+            </ul>
+          </div>
+          <div class="mx-quad lo-hi">
+            <span class="mx-title">Bajo impacto · alto esfuerzo</span>
+            <ul>
+              <li>Evitar rediseños puramente estéticos sin resolver arquitectura</li>
+            </ul>
+          </div>
+        </div>
+        <div class="matrix-xlabels"><span>Bajo esfuerzo</span><span>Alto esfuerzo</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="shead reveal">
+      <span class="eyebrow">Roadmap</span>
+      <h2>Ordenar antes de escalar</h2>
+    </div>
+    <div class="roadmap reveal">
+      <div class="phase"><span class="ph-num">01</span><h4>Entender</h4><ul><li>Objetivos de negocio</li><li>Usuarios</li><li>Métricas</li><li>Funcionalidades reales</li></ul></div>
+      <div class="phase"><span class="ph-num">02</span><h4>Ordenar</h4><ul><li>Arquitectura</li><li>Journeys</li><li>Roles</li><li>Procesos</li></ul></div>
+      <div class="phase"><span class="ph-num">03</span><h4>Diseñar</h4><ul><li>Wireframes</li><li>UX</li><li>UI</li><li>Design system</li></ul></div>
+      <div class="phase"><span class="ph-num">04</span><h4>Validar</h4><ul><li>Prototipo</li><li>Testing</li><li>Iteraciones</li></ul></div>
+      <div class="phase"><span class="ph-num">05</span><h4>Escalar</h4><ul><li>Web</li><li>iOS</li><li>Android</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section id="final">
+  <div class="final reveal">
+    <span class="eyebrow">Fairplay UX Audit</span>
+    <div class="headline">La oportunidad no es hacer Fairplay más bonito.</div>
+    <h2>Es hacer que Fairplay sea más fácil de entender, usar y escalar.</h2>
+    <p class="desc">El rediseño debe comenzar por producto y experiencia. La interfaz viene después.</p>
+    <span class="cta">Definir la nueva experiencia Fairplay</span>
+  </div>
+</section>
+
+<footer>Fairplay App · Auditoría UX — documento de diagnóstico, no una implementación final.</footer>
+
+<script>
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12});
+  revealEls.forEach(el=>io.observe(el));
+
+  // scrollspy nav
+  const navLinks = document.querySelectorAll('.navlinks a');
+  const sections = Array.from(navLinks).map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const spy = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const id = '#' + entry.target.id;
+      const link = document.querySelector('.navlinks a[href="'+id+'"]');
+      if(!link) return;
+      if(entry.isIntersecting){
+        navLinks.forEach(l=>l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-40% 0px -50% 0px'});
+  sections.forEach(s=>spy.observe(s));
+</script>
+
+</body>
+</html>
